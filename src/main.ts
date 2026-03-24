@@ -1,6 +1,6 @@
-import {Game} from "./game/core/game.ts";
-import {Renderer} from "./game/core/renderer.ts";
-import {ExampleScreen} from "./game/screens/exampleScreen.ts";
+import {Game} from "./engine/core/game.ts";
+import {Renderer} from "./engine/core/renderer.ts";
+import {ExampleScreen} from "./engine/screens/exampleScreen.ts";
 
 console.log("test")
 
