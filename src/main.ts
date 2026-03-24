@@ -1,13 +1,18 @@
 import {Game} from "./engine/core/game.ts";
-import {Renderer} from "./engine/core/renderer.ts";
-import {ExampleScreen} from "./engine/screens/exampleScreen.ts";
+import {createGamePage} from "./engine/bootstrap.ts";
+import {Screen} from "./engine/screens/screen.ts";
+import type {Renderer} from "./engine/core/renderer.ts";
 
-console.log("test")
+class TestGame extends Game {
+    constructor() {
+        super();
 
-const canvas = document.getElementById("gamecanvas") as HTMLCanvasElement;
+        this.screen = new class extends Screen {
+            render(renderer: Renderer): void {
+                renderer.drawRect(0, 0, 100 ,100, "#ff0000")
+            }
+        }
+    }
+}
 
-const renderer = new Renderer(canvas);
-
-console.log("game created")
-const game = new Game(renderer, new ExampleScreen());
-game.start()
+createGamePage(TestGame)
