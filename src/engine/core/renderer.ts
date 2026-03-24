@@ -13,7 +13,12 @@ export class Renderer {
 
     drawRect(x: number, y: number, w: number, h: number, c: string) {
         this.ctx.fillStyle = c;
-        this.ctx.fillRect(x, y, w, h);
+        this.ctx.fillRect(
+            Math.floor(x),
+            Math.floor(y),
+            Math.floor(w),
+            Math.floor(h)
+        );
     }
 
     get width() {
