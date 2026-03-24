@@ -48,6 +48,10 @@ export class Renderer {
         )
     }
 
+    getFromCache(src: string) {
+        return this.cache.get(src);
+    }
+
     get width() {
         return this.canvas.width;
     }
