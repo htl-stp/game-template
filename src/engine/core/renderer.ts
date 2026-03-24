@@ -1,3 +1,5 @@
+import {config} from "../config.ts";
+
 export class Renderer {
     ctx: CanvasRenderingContext2D;
     cache = new Map<string, HTMLImageElement>();
@@ -46,6 +48,16 @@ export class Renderer {
             w ?? img.width,
             h ?? img.height,
         )
+    }
+
+    text(text: string, x: number, y: number, color: string) {
+        this.ctx.font = config.font;
+        this.ctx.fillStyle = color;
+        this.ctx.fillText(text, x, y);
+    }
+
+    getFromCache(src: string) {
+        return this.cache.get(src);
     }
 
     get width() {

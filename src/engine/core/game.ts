@@ -55,7 +55,7 @@ export abstract class Game {
     };
 
     update(delta: number, screen: Screen, input: Input) {
-        screen.update(delta);
+        screen.update(delta, input);
     }
 
     draw(renderer: Renderer, screen: Screen) {
