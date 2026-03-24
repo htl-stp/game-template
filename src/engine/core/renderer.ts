@@ -3,10 +3,22 @@ export class Renderer {
 
     constructor(private canvas: HTMLCanvasElement) {
         this.ctx = canvas.getContext("2d")!;
+
+        this.ctx.imageSmoothingEnabled = false
     }
 
     clear() {
         this.ctx.clearRect(0, 0, this.width, this.height);
+    }
+
+    drawRect(x: number, y: number, w: number, h: number, c: string) {
+        this.ctx.fillStyle = c;
+        this.ctx.fillRect(
+            Math.floor(x),
+            Math.floor(y),
+            Math.floor(w),
+            Math.floor(h)
+        );
     }
 
     get width() {
