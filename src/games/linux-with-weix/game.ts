@@ -24,12 +24,11 @@ class Student extends Entity {
 
     private scared = false;
 
-    constructor() {
+    constructor(startX: number) {
         const height = 20
         const width = 15
 
-        super(0, config.canvas_height - 40 - height, 15, 20);
-        this.randomizePosition()
+        super(startX, config.canvas_height - 40 - height, 15, 20);
     }
 
     randomize() {
@@ -102,8 +101,9 @@ class GameScreen extends Screen {
         this.entities.push(new ScareArea());
         this.entities.push(new Weix())
 
+        const gap = (config.canvas_width - 40) / 10
         for (let i = 0; i < 10; i++) {
-            const s = new Student()
+            const s = new Student(20 + gap * i)
             this.entities.push(s)
         }
     }
