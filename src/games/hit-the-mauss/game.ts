@@ -3,153 +3,189 @@ import type {Renderer} from "../../engine/core/renderer.ts";
 import type {Input} from "../../engine/core/input.ts";
 import {config} from "../../engine/config.ts";
 import {Game} from "../../engine/core/game.ts";
+import {Screen} from "../../engine/screens/screen.ts";
 
-class Mauss extends Entity{
+class Mauss extends Entity {
     private active = false;
     private timer = 0;
-    constructor(x:number,y:number) {
+
+
+    constructor(x: number, y: number) {
         const size = 20
-        super(x,y,size,size)
+        super(x, y, size, size)
     }
+
+    spawn() {
+        if (Math.random() < 0.3) {
+            this.active = true;
+            this.timer = 2;
+            console.log("Mauss Spawned")
+        }
+    }
+
     update(dt: number) {
         if (this.active) {
             this.timer -= dt
-            if(this.timer <= 0){
+            if (this.timer <= 0) {
                 this.active = false;
-            }else {
-                if(Math.random() < 0.1){
-                    this.active = true;
-                    this.timer = 2;
-                }
+                console.log("Mauss despawned")
             }
         }
     }
-    render(r:Renderer){
-        if(!this.active)return
-        r.drawRect(this.x,this.y,this.w,this.h,"#a00f05")
+
+    render(r: Renderer) {
+        if (!this.active) {
+            r.drawRect(this.x, this.y, this.w, this.h, "#010101")
+        } else {
+            r.drawRect(this.x, this.y, this.w, this.h, "#a00f05")
+        }
     }
-    getHit(){
+
+    getHit() {
         this.active = false;
     }
-    peek(){
+
+    peek() {
         this.active = true;
     }
-    isActive(){
+
+    isActive() {
         return this.active;
     }
 }
-class Hammer extends Entity{
-    speed = 20
+
+class Hammer extends Entity {
+    speed = 60
     private ready = true;
+
     constructor() {
-        const size = 30
-        super(0,0,size,size)
+        const size = 12
+        super(0, 0, size, size)
     }
-    render(r:Renderer){
-        r.drawRect(this.x,this.y,this.w,this.h,"#101af1")
+
+    render(r: Renderer) {
+        r.drawRect(this.x, this.y, this.w, this.h, "#101af1")
     }
 }
 
-class HitBox extends Entity{
-    constructor(x:number, y:number,w:number,h:number) {
-        super(x,y,w,h);
+class HitBox extends Entity {
+    constructor(x: number, y: number, w: number, h: number) {
+        super(x, y, w, h);
     }
 }
+
 type GameState = "start" | "running" | "end"
-class GameScreen extends Screen{
+
+class GameScreen extends Screen {
     entities: Entity[] = [];
-    score:number = 0
+    score: number = 0
     gamestate: GameState = "running"
+
+    timer: number = 0;
 
     constructor() {
         super()
         this.entities.push(new Hammer());
 
-        const y = 200
+        const y = 100
 
-        for (let i = 0; i < 10; i++) {
-            const x = 50 + i  * 60
-            const m = new Mauss(x,y);
+        for (let i = 0; i < 4; i++) {
+            const x = 40 + i * 50
+            const m = new Mauss(x, y);
             this.entities.push(m);
         }
     }
-    render(r:Renderer){
+
+    render(r: Renderer) {
         for (const e of this.entities) {
             e.render(r)
         }
-        r.text(`Score: ${this.score}`,10,20, "#fff")
+        r.text(`Score: ${this.score}`, 10, 20, "#fff")
     }
 
-    update(dt:number, input:Input){
-        if(this.gamestate === "running"){
+    update(dt: number, input: Input) {
+        this.timer += dt;
+
+        if (this.gamestate === "running") {
             for (const e of this.entities) {
                 e.update(dt)
+
+                if (this.timer > 1 && e instanceof Mauss) {
+                    e.spawn()
+                }
+            }
+
+            if (this.timer > 1) {
+                this.timer -= 1;
             }
         }
         this.handleInput(input, dt)
 
     }
-    handleInput(input:Input, dt:number){
-        if(input.isDown(" ")){
-            if(this.gamestate === "running"){
+
+    handleInput(input: Input, dt: number) {
+        if (input.isDown(" ")) {
+            if (this.gamestate === "running") {
                 this.hitMauss()
             }
         }
-        if(input.isDown("a")){
-            if(this.gamestate === "running"){
+        if (input.isDown("a")) {
+            if (this.gamestate === "running") {
                 this.moveLeft(dt)
             }
         }
-        if(input.isDown("d")){
-            if(this.gamestate === "running"){
+        if (input.isDown("d")) {
+            if (this.gamestate === "running") {
                 this.moveRight(dt)
             }
         }
     }
 
-    hitMauss(){
+    hitMauss() {
         const hammer = this.entities.find(e => e instanceof Hammer)!
-        const hitBox = new HitBox(hammer.x,hammer.y,hammer.w,hammer.h);
+        const hitBox = new HitBox(hammer.x, hammer.y, hammer.w, config.canvas_height);
 
-        const mausses:Mauss[] = []
+        const mausses: Mauss[] = []
 
         for (const e of this.entities) {
-            if(e instanceof Mauss){
+            if (e instanceof Mauss) {
                 mausses.push(e)
             }
         }
 
         for (const m of mausses) {
-            if(m.isActive() && hitBox.collidesWith(m)){
+            if (m.isActive() && hitBox.collidesWith(m)) {
                 m.getHit()
                 this.score += 100
             }
         }
     }
-    moveLeft(dt:number){
+
+    moveLeft(dt: number) {
         const hammer = this.entities.find(e => e instanceof Hammer)!
-        if(hammer.x < 20){
+        if (hammer.x < 20) {
             return
         }
         hammer.x -= hammer.speed * dt
     }
 
-    moveRight(dt:number){
+    moveRight(dt: number) {
         const hammer = this.entities.find(e => e instanceof Hammer)!
-        if(hammer.x > config.canvas_width){
+        if (hammer.x > config.canvas_width) {
             return
         }
         hammer.x += hammer.speed * dt
     }
 }
-export class HitTheMauss extends Game{
+
+export class HitTheMauss extends Game {
     constructor() {
         super();
 
         this.screen = new GameScreen();
     }
 
-    reset(){
+    reset() {
         this.screen = new GameScreen();
     }
 
