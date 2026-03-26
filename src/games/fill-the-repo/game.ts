@@ -1,6 +1,10 @@
 import {Entity} from "../../engine/entity/entity.ts";
 import {config} from "../../engine/config.ts";
 import type {Renderer} from "../../engine/core/renderer.ts";
+import {Scene} from "../../engine/scenes/scene.ts";
+import type {Input} from "../../engine/core/input.ts";
+import {Game} from "../../engine/core/game.ts";
+import {MenuScene} from "../../engine/scenes/menuScene.ts";
 
 type Subject = "POS" | "WMC" | "SYP" | "DBI"
 type Direction = "top" | "right" | "bottom" | "left";
@@ -45,10 +49,11 @@ class Cube extends Entity {
 
     }
 }
+
 class SubjectProjectile extends Entity {
     type: Subject;
     originDir: Direction;
-    speed: number = 100;
+    speed: number = 50;
 
     constructor(type: Subject, originDir: Direction) {
         let startX = 0;
@@ -77,6 +82,7 @@ class SubjectProjectile extends Entity {
         this.type = type;
         this.originDir = originDir;
     }
+
     update(dt: number) {
         switch (this.originDir) {
             case "top":
@@ -93,8 +99,110 @@ class SubjectProjectile extends Entity {
                 break;
         }
     }
+
     render(r: Renderer) {
         r.drawRect(this.x, this.y, this.w, this.h, "#ffffff");
         r.text(this.type, this.x + 2, this.y + 20, "#000000");
+    }
+}
+
+type GameState = "start" | "running" | "end"
+
+class GameScene extends Scene {
+
+    private cube: Cube;
+    private projectiles: SubjectProjectile[] = [];
+    private score: number = 0;
+    private lives: number = 3;
+    private state: GameState = "running";
+
+    private spawnTimer: number = 0;
+    private spawnInterval: number = 2.0;
+
+
+
+
+    constructor(private i:Input) {
+        super();
+        this.cube = new Cube()
+
+        i.onKeyDown(k => {
+            if (k === "a") {
+                this.cube.rotateLeft()
+            }else if (k === "d") {
+                this.cube.rotateRight()
+            }
+        })
+    }
+
+    update(dt: number, input: Input) {
+        if (this.state === "end") return
+
+        this.handleInput(input)
+
+        this.spawnTimer += dt;
+
+        if (this.spawnTimer >= this.spawnInterval) {
+            this.spawnProjectile();
+            this.spawnTimer = 0;
+            this.spawnInterval = Math.max(0.6, this.spawnInterval * 0.98);
+        }
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+            const p = this.projectiles[i];
+            p.update(dt);
+
+            if(p.collidesWith(this.cube)) {
+                const target =  this.cube.getSubjectAt(p.originDir)
+
+                if (p.type === target) {
+                    this.score += 100;
+                    console.log("scored")
+                }else{
+                    this.lives--;
+                    console.log("lost live");
+                }
+                this.projectiles.splice(i, 1);
+            }
+        }
+        if (this.lives <= 0)this.state = "end"
+    }
+
+    private handleInput(input: Input) {
+    }
+
+    private spawnProjectile() {
+        const subjects: Subject[] = ["POS", "WMC", "SYP", "DBI"];
+        const directions: Direction[] = ["top", "right", "bottom", "left"];
+
+        const randomSubject = subjects[Math.floor(Math.random() * subjects.length)];
+        const randomDir = directions[Math.floor(Math.random() * directions.length)];
+
+        const p = new SubjectProjectile(randomSubject, randomDir);
+        this.projectiles.push(p);
+    }
+    render(r: Renderer) {
+        this.cube.render(r)
+        for (const p of this.projectiles) {
+            p.render(r)
+        }
+
+        r.text(`Score: ${this.score}`, 20,30,"#fff")
+        r.text(`Lives: ${this.lives}`, 20,60,"#fff")
+
+        if (this.state === "end") {
+
+        }
+    }
+}
+
+export class FillTheRepo extends Game {
+    constructor() {
+        super();
+        this.scene = new MenuScene(() => {
+            this.scene = new GameScene(this.input);
+        });
+    }
+    reset(){
+        this.scene = new GameScene(this.input);
     }
 }
