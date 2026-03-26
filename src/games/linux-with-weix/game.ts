@@ -6,6 +6,7 @@ import {config} from "../../engine/config.ts";
 import type {Input} from "../../engine/core/input.ts";
 import {MenuScene} from "../../engine/scenes/menuScene.ts";
 import {HeartDisplay} from "../../engine/entity/heartDisplay.ts";
+import {ScoreDisplay} from "../../engine/entity/scoreDisplay.ts";
 
 class Weix extends Entity {
     constructor() {
@@ -109,7 +110,7 @@ class GameScene extends Scene {
             this.entities.push(s)
         }
 
-        this.entities.push(new HeartDisplay());
+        this.entities.push(new ScoreDisplay(this.score));
     }
 
     render(r: Renderer) {
@@ -118,8 +119,6 @@ class GameScene extends Scene {
         for (const e of this.entities) {
             e.render(r)
         }
-
-        r.text(`Score: ${this.score}`, 10, 20, "#fff")
 
         if (this.score === 1000) {
             if (currentTime % 2) {
