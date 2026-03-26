@@ -71,8 +71,7 @@ class Hammer extends Entity {
     private ready = true;
 
     constructor() {
-        const size = 12
-        super(0, 0, size, size)
+        super(config.canvas_width / 2 - 30 / 2, 50, 30, 50)
     }
 
     render(r: Renderer) {
@@ -111,7 +110,7 @@ class GameScene extends Scene {
         super()
         this.entities.push(new Hammer());
 
-        const y = 100
+        const y = 120
 
         for (let i = 0; i < 4; i++) {
             const x = 40 + i * 50
