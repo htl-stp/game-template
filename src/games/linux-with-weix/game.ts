@@ -7,6 +7,7 @@ import type {Input} from "../../engine/core/input.ts";
 import {MenuScene} from "../../engine/scenes/menuScene.ts";
 import {HeartDisplay} from "../../engine/entity/heartDisplay.ts";
 import {ScoreDisplay} from "../../engine/entity/scoreDisplay.ts";
+import {signal} from "../../engine/utils/signal.ts";
 
 class Weix extends Entity {
     constructor() {
@@ -95,7 +96,7 @@ type GameState = "start" | "running" | "end";
 class GameScene extends Scene {
     entities: Entity[] = [];
 
-    score: number = 0;
+    score = signal<number>(0);
     gamestate: GameState = "running";
 
     constructor() {
@@ -120,7 +121,7 @@ class GameScene extends Scene {
             e.render(r)
         }
 
-        if (this.score === 1000) {
+        if (this.score.get() === 1000) {
             if (currentTime % 2) {
                 r.text(`JACKPOT`, config.canvas_width - 65, 20, "#fff")
             }
@@ -151,7 +152,7 @@ class GameScene extends Scene {
         for (const e of this.entities) {
             if (e instanceof Student) {
                 if (e.collidesWith(scareArea)) {
-                    this.score += 100;
+                    this.score.update(v => v += 100)
                     e.scare();
                 }
             }

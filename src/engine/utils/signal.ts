@@ -1,8 +1,20 @@
 export class Signal<T> {
-    value: T;
+    private value: T;
 
     constructor(value: T) {
         this.value = value;
+    }
+
+    get() {
+        return this.value;
+    }
+
+    set(value: T) {
+        this.value = value;
+    }
+
+    update(c: (value: T) => T) {
+        this.value = c(this.value)
     }
 }
 
