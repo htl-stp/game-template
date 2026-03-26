@@ -35,16 +35,19 @@ export class Renderer {
         this.ctx.restore()
     }
 
-    async loadImage(src: string): Promise<HTMLImageElement> {
+    async loadImage(src: string, cacheName?: string): Promise<HTMLImageElement> {
         return new Promise((resolve, reject) => {
-            if (this.cache.has(src)) {
+            if (cacheName && this.cache.has(cacheName)) {
                 return resolve(this.cache.get(src)!);
             }
 
             const img = new Image()
             img.src = src
             img.onload = () => {
-                this.cache.set(src, img);
+                if (cacheName) {
+                    this.cache.set(cacheName, img);
+                }
+
                 resolve(img)
             }
             img.onerror = reject

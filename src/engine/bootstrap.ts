@@ -16,7 +16,7 @@ export async function createGamePage(GameClass: new () => Game) {
 
     const game = new GameClass();
 
-    await game.loadAssets()
+    await game.loadAssets(renderer);
 
     game.init(renderer, input)
 

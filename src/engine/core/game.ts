@@ -34,7 +34,7 @@ export abstract class Game {
      *
      * @see createGamePage
      */
-    async loadAssets() {}
+    async loadAssets(renderer: Renderer): Promise<void> {}
 
     init(renderer: Renderer, input: Input) {
         this.renderer = renderer;
