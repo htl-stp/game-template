@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Linux with WEIX",
+    "internal": "linux-with-weix",
+    "description": "Play as WEIX, and scare your students!",
+    "author": "daftvoid"
+  },
+  {
+    "name": "Hit the Mauss",
+    "internal": "hit-the-mauss",
+    "description": "No description available",
+    "author": "SirMops123"
+  },
+  {
+    "name": "Fill the Repo",
+    "internal": "fill-the-repo",
+    "description": "No description available",
+    "author": "SirMops123"
+  }
+]
