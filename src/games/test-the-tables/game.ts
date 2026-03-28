@@ -39,7 +39,7 @@ class HomeSlot extends Entity {
 
     constructor(id:number, index:number) {
         const spacing = config.canvas_width / 5
-        const x = (index*spacing) + (spacing / 2) - 30
+        const x = (index*spacing) + (spacing / 2) - 20
         const y = 20
         super(x,y,40,20)
         this.tableId = id
