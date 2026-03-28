@@ -16,5 +16,11 @@
     "internal": "fill-the-repo",
     "description": "No description available",
     "author": "SirMops123"
+  },
+  {
+    "name": "Test the Tables",
+    "internal": "test-the-tables",
+    "description": "Hurry up and arrange the Tables before the Test starts!",
+    "author": "SirMops123"
   }
 ]
