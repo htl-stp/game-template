@@ -5,6 +5,9 @@ import {Scene} from "../../engine/scenes/scene.ts";
 import type {Input} from "../../engine/core/input.ts";
 import {Game} from "../../engine/core/game.ts";
 import {MenuScene} from "../../engine/scenes/menuScene.ts";
+import {signal} from "../../engine/utils/signal.ts";
+import {ScoreDisplay} from "../../engine/entity/scoreDisplay.ts";
+import {HeartDisplay} from "../../engine/entity/heartDisplay.ts";
 
 type TableStatus = "home" | "moving" | "locked";
 
@@ -89,6 +92,10 @@ class GameScene extends Scene {
     private levelTime:number = 15.0
     private currentTime:number = 15.0;
 
+    private score = signal(0);
+    private scoreDisplay = new ScoreDisplay(this.score);
+
+
     constructor(private input:Input) {
         super();
 
@@ -115,10 +122,23 @@ class GameScene extends Scene {
         this.tables.forEach(table => {
             table.reset()
 
-            const rx = Math.random() * (config.canvas_width - table.w);
-            const ry = 40 + Math.random() * (config.canvas_height - table.h - 40);
+            let target: Target;
+            let rx: number;
+            let ry: number;
+            let attempts = 0;
 
-            this.targets.push(new Target(table.id,rx,ry,table.w,table.h));
+            do {
+                const rx = Math.random() * (config.canvas_width - table.w);
+                const ry = 40 + Math.random() * (config.canvas_height - table.h - 40);
+
+                target = new Target(table.id, rx, ry, table.w, table.h);
+
+                attempts++;
+
+                if (attempts > 100) break;
+            } while (this.targets.some(t => target.collidesWith(t)));
+
+            this.targets.push(target);
         })
     }
     update(dt:number,input:Input) {
@@ -136,10 +156,29 @@ class GameScene extends Scene {
         if(t.status !== "locked") {
             const speed = 400 * dt
 
-            if (input.isDown("w")) t.y -= speed
-            if (input.isDown("s")) t.y += speed
-            if (input.isDown("a")) t.x -= speed
-            if (input.isDown("d")) t.x += speed
+            if (input.isDown("w")) {
+                if (t.y - speed >= 20 + t.h) {
+                    t.y -= speed;
+                }
+            }
+
+            if (input.isDown("s")) {
+                if (t.y + t.h + speed <= config.canvas_height) {
+                    t.y += speed;
+                }
+            }
+
+            if (input.isDown("a")) {
+                if (t.x - speed >= 0) {
+                    t.x -= speed;
+                }
+            }
+
+            if (input.isDown("d")) {
+                if (t.x + t.w + speed <= config.canvas_width) {
+                    t.x += speed;
+                }
+            }
 
             if (input.isDown("a") || (input.isDown("s")) || (input.isDown("a")) || (input.isDown("d"))) {
                 t.status = "moving"
@@ -147,7 +186,7 @@ class GameScene extends Scene {
 
             if (target.checkSnap(t)) {
                 this.activeTableIndex = -1;
-
+                this.score.update(v => v + 100)
                 if (this.tables.every(table => table.status === "locked")){
                     this.levelTime *= 0.9
                     this.startNewRound()
@@ -158,27 +197,22 @@ class GameScene extends Scene {
 
     }
     render(r: Renderer) {
-        // 1. Hintergrund: Die leeren Home-Slots zuerst zeichnen
         this.slots.forEach(slot => slot.render(r));
 
-        // 2. Ziele: Die Targets zeichnen, auf die die Tische bewegt werden müssen
         this.targets.forEach(target => target.render(r));
 
-        // 3. Vordergrund: Die Tische zeichnen
         this.tables.forEach((table, index) => {
-            // Optional: Den aktuell ausgewählten Tisch hervorheben
             if (index === this.activeTableIndex) {
-                // Zeichne einen kleinen Rahmen um den aktiven Tisch
                 r.drawRect(table.x - 2, table.y - 2, table.w + 4, table.h + 4, config.theme.colors.white);
             }
             table.render(r);
         });
 
-        // 4. UI: Zeit-Anzeige
         const timeText = `TIME: ${Math.max(0, this.currentTime).toFixed(1)}s`;
         const timeColor = this.currentTime < 5 ? config.theme.colors.red : config.theme.colors.white;
+        this.scoreDisplay.render(r);
 
-        r.advancedText(timeText, 20, 80, timeColor, {
+        r.advancedText(timeText, 150, 7, timeColor, {
             textAlign: "left",
             textBaseline: "top"
         });
