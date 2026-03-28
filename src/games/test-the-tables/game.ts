@@ -2,6 +2,9 @@ import {Entity} from "../../engine/entity/entity.ts";
 import {config} from "../../engine/config.ts";
 import  {type Renderer} from "../../engine/core/renderer.ts";
 import {Scene} from "../../engine/scenes/scene.ts";
+import type {Input} from "../../engine/core/input.ts";
+import {Game} from "../../engine/core/game.ts";
+import {MenuScene} from "../../engine/scenes/menuScene.ts";
 
 type TableStatus = "home" | "moving" | "locked";
 
@@ -74,5 +77,147 @@ class Target extends Entity {
 type GameState = "start" | "running" | "end"
 
 class GameScene extends Scene {
+    private state:GameState = "running";
 
+    private slots:HomeSlot[] = []
+    private tables:Table[] = []
+    private targets:Target[] = [];
+
+    private activeTableIndex: number = 0;
+    private transitionTimer:number = 0;
+
+    private levelTime:number = 15.0
+    private currentTime:number = 15.0;
+
+    constructor(private input:Input) {
+        super();
+
+        for (let i = 1; i <= 5; i++) {
+            const slot = new HomeSlot(i,i-1)
+            this.slots.push(slot)
+            this.tables.push(new Table(i,slot))
+        }
+        input.onKeyDown(key => {
+            if (this.state !== "running") return
+
+            const val = parseInt(key)
+            if (val >= 1 && val <= 5){
+                this.activeTableIndex = val -1
+            }
+        })
+        this.startNewRound();
+    }
+    private startNewRound() {
+        this.targets = []
+        this.activeTableIndex = -1
+        this.state = "running"
+        this.currentTime = this.levelTime
+        this.tables.forEach(table => {
+            table.reset()
+
+            const rx = Math.random() * (config.canvas_width - table.w);
+            const ry = 150 + Math.random() * (config.canvas_height - table.h - 150);
+
+            this.targets.push(new Target(table.id,rx,ry,table.w,table.h));
+        })
+    }
+    update(dt:number,input:Input) {
+        if (this.state === "end") return
+
+        this.currentTime -= dt;
+        if (this.currentTime <= 0) {
+            this.state = "end"
+            return;
+        }
+        if(this.activeTableIndex !== -1){
+        const t = this.tables[this.activeTableIndex];
+        const target = this.targets[this.activeTableIndex];
+
+        if(t.status !== "locked") {
+            const speed = 400 * dt
+
+            if (input.isDown("w")) t.y -= speed
+            if (input.isDown("s")) t.y += speed
+            if (input.isDown("a")) t.x -= speed
+            if (input.isDown("d")) t.x += speed
+
+            if (input.isDown("a") || (input.isDown("s")) || (input.isDown("a")) || (input.isDown("d"))) {
+                t.status = "moving"
+            }
+
+            if (target.checkSnap(t)) {
+                this.activeTableIndex = -1;
+
+                if (this.tables.every(table => table.status === "locked")){
+                    this.levelTime *= 0.9
+                    this.startNewRound()
+                }
+            }
+        }
+        }
+
+    }
+    render(r: Renderer) {
+        // 1. Hintergrund: Die leeren Home-Slots zuerst zeichnen
+        this.slots.forEach(slot => slot.render(r));
+
+        // 2. Ziele: Die Targets zeichnen, auf die die Tische bewegt werden müssen
+        this.targets.forEach(target => target.render(r));
+
+        // 3. Vordergrund: Die Tische zeichnen
+        this.tables.forEach((table, index) => {
+            // Optional: Den aktuell ausgewählten Tisch hervorheben
+            if (index === this.activeTableIndex) {
+                // Zeichne einen kleinen Rahmen um den aktiven Tisch
+                r.drawRect(table.x - 2, table.y - 2, table.w + 4, table.h + 4, config.theme.colors.white);
+            }
+            table.render(r);
+        });
+
+        // 4. UI: Zeit-Anzeige
+        const timeText = `TIME: ${Math.max(0, this.currentTime).toFixed(1)}s`;
+        const timeColor = this.currentTime < 5 ? config.theme.colors.red : config.theme.colors.white;
+
+        // Zeit oben links anzeigen
+        r.advancedText(timeText, 20, 80, timeColor, {
+            textAlign: "left",
+            textBaseline: "top"
+        });
+
+        // 5. Game Over Screen
+        if (this.state === "end") {
+            // Dunkler Overlay-Schleier über das ganze Bild
+            r.drawRect(0, 0, config.canvas_width, config.canvas_height, "rgba(0, 0, 0, 0.85)");
+
+            // Zentrierter "Game Over" Text
+            r.advancedText(
+                "GAME OVER",
+                config.canvas_width / 2,
+                config.canvas_height / 2 - 20,
+                config.theme.colors.red,
+                { textAlign: "center", textBaseline: "middle" }
+            );
+
+            // Neustart-Hinweis
+            r.advancedText(
+                "Press SPACE to Restart",
+                config.canvas_width / 2,
+                config.canvas_height / 2 + 40,
+                config.theme.colors.white,
+                { textAlign: "center", textBaseline: "middle" }
+            );
+        }
+    }
+}
+
+export class TestTheTables extends Game {
+    constructor() {
+        super();
+        this.scene = new MenuScene(() => {
+            this.scene = new GameScene(this.input);
+        });
+    }
+    reset(){
+        this.scene = new GameScene(this.input);
+    }
 }
