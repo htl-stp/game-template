@@ -183,7 +183,7 @@ class GameScene extends Scene {
     }
 
     handleInput(input: Input, dt: number) {
-        if (input.isDown(" ")) {
+        if (input.isDown(config.keys.confirm)) {
             if (this.gamestate === "running") {
                 this.hitMauss()
             }
@@ -191,12 +191,12 @@ class GameScene extends Scene {
         if(!this.movementLocked) {
 
 
-            if (input.isDown("a")) {
+            if (input.isDown(config.keys.left)) {
                 if (this.gamestate === "running") {
                     this.moveLeft(dt)
                 }
             }
-            if (input.isDown("d")) {
+            if (input.isDown(config.keys.right)) {
                 if (this.gamestate === "running") {
                     this.moveRight(dt)
                 }

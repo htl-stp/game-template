@@ -141,9 +141,9 @@ class GameScene extends Scene {
         this.cube = new Cube()
 
         i.onKeyDown(k => {
-            if (k === "a") {
+            if (config.keys.left.includes(k)) {
                 this.cube.rotateLeft()
-            }else if (k === "d") {
+            } else if (config.keys.right.includes(k)) {
                 this.cube.rotateRight()
             }
         })

@@ -21,5 +21,12 @@ export const config = {
             gray: "#999999",
             dark_gray: "#333333",
         }
+    },
+    keys: {
+        up: ["w", "ArrowUp"],
+        left: ["a", "ArrowLeft"],
+        down: ["s", "ArrowDown"],
+        right: ["d", "ArrowRight"],
+        confirm: ["Enter", " "],
     }
 }

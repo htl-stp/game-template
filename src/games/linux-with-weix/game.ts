@@ -139,7 +139,7 @@ class GameScene extends Scene {
     }
 
     handleInput(input: Input) {
-        if (input.isDown(" ")) {
+        if (input.isDown(config.keys.confirm)) {
             if (this.gamestate === "running") {
                 this.scareStudents()
             }

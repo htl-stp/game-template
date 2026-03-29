@@ -156,31 +156,31 @@ class GameScene extends Scene {
         if(t.status !== "locked") {
             const speed = 400 * dt
 
-            if (input.isDown("w")) {
+            if (input.isDown(config.keys.up)) {
                 if (t.y - speed >= 20 + t.h) {
                     t.y -= speed;
                 }
             }
 
-            if (input.isDown("s")) {
+            if (input.isDown(config.keys.down)) {
                 if (t.y + t.h + speed <= config.canvas_height) {
                     t.y += speed;
                 }
             }
 
-            if (input.isDown("a")) {
+            if (input.isDown(config.keys.left)) {
                 if (t.x - speed >= 0) {
                     t.x -= speed;
                 }
             }
 
-            if (input.isDown("d")) {
+            if (input.isDown(config.keys.right)) {
                 if (t.x + t.w + speed <= config.canvas_width) {
                     t.x += speed;
                 }
             }
 
-            if (input.isDown("a") || (input.isDown("s")) || (input.isDown("a")) || (input.isDown("d"))) {
+            if (input.isDown(config.keys.left) || (input.isDown(config.keys.down)) || (input.isDown(config.keys.left)) || (input.isDown(config.keys.right))) {
                 t.status = "moving"
             }
 
