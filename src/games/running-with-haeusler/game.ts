@@ -5,6 +5,8 @@ import {Scene} from "../../engine/scenes/scene.ts";
 import {signal} from "../../engine/utils/signal.ts";
 import {ScoreDisplay} from "../../engine/entity/scoreDisplay.ts";
 import type {Input} from "../../engine/core/input.ts";
+import {Game} from "../../engine/core/game.ts";
+import {MenuScene} from "../../engine/scenes/menuScene.ts";
 
 
 class Haeusler extends Entity{
@@ -79,7 +81,7 @@ class GameScene extends Scene{
 
     private timer:number = 0;
 
-    constructor() {
+    constructor(input:Input) {
         super();
 
         this.haeusler = new Haeusler();
@@ -147,6 +149,17 @@ class GameScene extends Scene{
         for (let i = 0; i < 10; i++) {
             r.drawRect(200 * i, config.canvas_height / 2 - 2, 50, 4, "rgba(255,255,255,0.1)");
         }
+    }
+}
+export class RunningWithHaeusler extends Game {
+    constructor() {
+        super();
+        this.scene = new MenuScene(() => {
+            this.scene = new GameScene(this.input);
+        });
+    }
+    reset(){
+        this.scene = new GameScene(this.input);
     }
 }
 
