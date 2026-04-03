@@ -1,4 +1,5 @@
 import games from "../public/assets/games.json"
+import "@htl-stp/core/style.css"
 
 const main = document.querySelector('main');
 
@@ -6,7 +7,7 @@ if (!main) throw new Error("No main element!");
 
 games.forEach(game => {
     const div = document.createElement('div');
-    div.className = 'game';
+    div.className = 'game card';
 
     div.innerHTML = `
     <a href="./src/games/${game.internal}">
@@ -14,13 +15,13 @@ games.forEach(game => {
     </a>
 
     <h1>
-      <a href="./src/games/${game.internal}">
+      <a href="./src/games/${game.internal}" class="heading-lg">
         ${game.name}
       </a>
     </h1>
 
-    <p>${game.description}</p>
-    <p class="author">by ${game.author}</p>
+    <p class="mt-md mb-sm">${game.description}</p>
+    <p class="author text-muted">by ${game.author}</p>
   `;
 
     main.appendChild(div);
