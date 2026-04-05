@@ -1,5 +1,8 @@
 import games from "../public/assets/games.json"
-import "@htl-stp/core/style.css"
+
+import "@htl-stp/core/core.css"
+import "@htl-stp/core/utilities.css"
+import "@htl-stp/core/components.css"
 
 const main = document.querySelector('main');
 
