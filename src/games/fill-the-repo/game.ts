@@ -34,6 +34,10 @@ class Cube extends Entity {
         const first = this.sides.shift()!;
         this.sides.push(first);
     }
+    rotate180() {
+        this.rotateLeft()
+        this.rotateLeft()
+    }
 
     getSubjectAt(direction: Direction): Subject {
         switch (direction) {
@@ -133,6 +137,12 @@ class GameScene extends Scene {
     private scoreDisplay = new ScoreDisplay(this.score);
     private heartDisplay = new HeartDisplay(this.lives);
 
+    private minSpawnGap = 0.6;
+    private timeSinceLastSpawn = 0;
+
+    private lastSubject: Subject|null = null;
+
+
 
 
 
@@ -145,6 +155,10 @@ class GameScene extends Scene {
                 this.cube.rotateLeft()
             } else if (config.keys.right.includes(k)) {
                 this.cube.rotateRight()
+            } else if (config.keys.up.includes(k)) {
+                this.cube.rotate180()
+            } else if (config.keys.down.includes(k)) {
+                this.cube.rotate180()
             }
         })
     }
@@ -155,11 +169,17 @@ class GameScene extends Scene {
         this.handleInput(input)
 
         this.spawnTimer += dt;
+        this.timeSinceLastSpawn += dt;
+
 
         if (this.spawnTimer >= this.spawnInterval) {
-            this.spawnProjectile();
-            this.spawnTimer = 0;
-            this.spawnInterval = Math.max(0.6, this.spawnInterval * 0.98);
+            if (this.timeSinceLastSpawn >= this.minSpawnGap) {
+                this.spawnProjectile();
+                this.spawnTimer = 0;
+                this.timeSinceLastSpawn = 0;
+
+                this.spawnInterval = Math.max(0.8, this.spawnInterval * 0.98);
+            }
         }
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const p = this.projectiles[i];
@@ -188,11 +208,18 @@ class GameScene extends Scene {
         const subjects: Subject[] = ["POS", "WMC", "SYP", "DBI"];
         const directions: Direction[] = ["top", "right", "bottom", "left"];
 
-        const randomSubject = subjects[Math.floor(Math.random() * subjects.length)];
+        const availableSubjects = subjects.filter(s => s !== this.lastSubject);
+
+
+        const randomSubject = availableSubjects[Math.floor(Math.random() * availableSubjects.length)];
         const randomDir = directions[Math.floor(Math.random() * directions.length)];
+
+        this.lastSubject = randomSubject;
+
 
         const p = new SubjectProjectile(randomSubject, randomDir);
         this.projectiles.push(p);
+
     }
     render(r: Renderer) {
         this.cube.render(r)
