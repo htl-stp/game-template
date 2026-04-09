@@ -1,10 +1,10 @@
-name: Build
+name: Lint & Style Code
 on:
   push:
   pull_request:
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -16,5 +16,5 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-      - name: Build
-        run: npm run build
+      - name: 'Lint'
+        run: npm run lint

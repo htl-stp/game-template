@@ -1,0 +1,21 @@
+{
+  "printWidth": 100,
+  "singleQuote": true,
+  "overrides": [
+    {
+      "files": "*.html",
+      "options": {
+        "parser": "angular"
+      }
+    },
+    {
+      "files": ["*.ts", "*.js", "*.mjs"],
+      "options": {
+        "tabWidth": 4,
+        "useTabs": true,
+        "semi": true,
+        "singleQuote": true
+      }
+    }
+  ]
+}

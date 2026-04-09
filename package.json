@@ -6,13 +6,22 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "prettier -c . && eslint",
+    "lint:fix": "prettier -w . && eslint --fix"
   },
   "devDependencies": {
+    "@eslint/css": "^1.0.0",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.5.2",
+    "eslint": "^10.0.3",
+    "prettier": "^3.8.1",
     "typescript": "~5.9.3",
     "vite": "^8.0.1"
   },
   "dependencies": {
-    "@htl-stp/core": "^1.1.0"
+    "@htl-stp/core": "^1.1.0",
+    "globals": "^17.4.0",
+    "typescript-eslint": "^8.58.1"
   }
 }

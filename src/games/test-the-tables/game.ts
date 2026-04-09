@@ -1,90 +1,123 @@
-import {Entity} from "../../engine/entity/entity.ts";
-import {config} from "../../engine/config.ts";
-import  {type Renderer} from "../../engine/core/renderer.ts";
-import {Scene} from "../../engine/scenes/scene.ts";
-import type {Input} from "../../engine/core/input.ts";
-import {Game} from "../../engine/core/game.ts";
-import {MenuScene} from "../../engine/scenes/menuScene.ts";
-import {signal} from "../../engine/utils/signal.ts";
-import {ScoreDisplay} from "../../engine/entity/scoreDisplay.ts";
-import {HeartDisplay} from "../../engine/entity/heartDisplay.ts";
-import type {AssetLoader} from "../../engine/assets/assetloader.ts";
-import {type Asset, ImageAsset, SoundAsset} from "../../engine/assets/asset.ts";
-import table from "../../../public/assets/images/table.png";
-import table_dance from "../../../public/assets/sounds/songs/table_dance.wav";
+import { Entity } from '../../engine/entity/entity.ts';
+import { config } from '../../engine/config.ts';
+import { type Renderer } from '../../engine/core/renderer.ts';
+import { Scene } from '../../engine/scenes/scene.ts';
+import type { Input } from '../../engine/core/input.ts';
+import { Game } from '../../engine/core/game.ts';
+import { MenuScene } from '../../engine/scenes/menuScene.ts';
+import { signal } from '../../engine/utils/signal.ts';
+import { ScoreDisplay } from '../../engine/entity/scoreDisplay.ts';
+import { HeartDisplay } from '../../engine/entity/heartDisplay.ts';
+import type { AssetLoader } from '../../engine/assets/assetloader.ts';
+import { type Asset, ImageAsset, SoundAsset } from '../../engine/assets/asset.ts';
+import table from '../../../public/assets/images/table.png';
+import table_dance from '../../../public/assets/sounds/songs/table_dance.wav';
 
-type TableStatus = "home" | "moving" | "locked";
+type TableStatus = 'home' | 'moving' | 'locked';
 
 class Table extends Entity {
-    public status: TableStatus = "home";
-    public target: {x:number, y:number, w:number, h:number} | null = null;
+	public status: TableStatus = 'home';
+	public target: { x: number; y: number; w: number; h: number } | null = null;
 
-    constructor(public id: number, private home: HomeSlot) {
-        super(home.x,home.y,home.w,home.h);
-    }
+	constructor(
+		public id: number,
+		private home: HomeSlot,
+	) {
+		super(home.x, home.y, home.w, home.h);
+	}
 
-    render(r: Renderer) {
-        const color = this.status === "locked" ? config.theme.colors.green : config.theme.colors.blue;
+	render(r: Renderer) {
+		const color =
+			this.status === 'locked' ? config.theme.colors.green : config.theme.colors.blue;
 
-        r.drawImage(tableAsset.img, this.x, this.y, this.w, this.h);
-        r.advancedText(this.id.toString(),this.x +  this.w / 2, this.y + this.h / 2 - 2, config.theme.colors.white,
-            {textAlign : "center", textBaseline : "middle"})
-    }
+		r.drawImage(tableAsset.img, this.x, this.y, this.w, this.h);
+		r.advancedText(
+			this.id.toString(),
+			this.x + this.w / 2,
+			this.y + this.h / 2 - 2,
+			config.theme.colors.white,
+			{ textAlign: 'center', textBaseline: 'middle' },
+		);
+	}
 
-    reset() {
-        this.x = this.home.x;
-        this.y = this.home.y;
-        this.status = "home";
-    }
+	reset() {
+		this.x = this.home.x;
+		this.y = this.home.y;
+		this.status = 'home';
+	}
 }
 
 class HomeSlot extends Entity {
-    public tableId: number;
+	public tableId: number;
 
-    constructor(id:number, index:number) {
-        const spacing = config.canvas_width / 5
-        const x = (index*spacing) + (spacing / 2) - 20
-        const y = 20
-        super(x,y,40,20)
-        this.tableId = id
-    }
-    render(r: Renderer) {
-        const pad = 1
+	constructor(id: number, index: number) {
+		const spacing = config.canvas_width / 5;
+		const x = index * spacing + spacing / 2 - 20;
+		const y = 20;
+		super(x, y, 40, 20);
+		this.tableId = id;
+	}
+	render(r: Renderer) {
+		const pad = 1;
 
-        r.drawRect(this.x - pad,this.y - pad,this.w + pad * 2,this.h + pad * 2, "rgba(255,255,255,0.2)")
-        r.advancedText(this.tableId.toString(),this.x +  this.w / 2,this.y + this.y / 2,config.theme.colors.black,{textAlign:"center",textBaseline:"middle"})
-    }
+		r.drawRect(
+			this.x - pad,
+			this.y - pad,
+			this.w + pad * 2,
+			this.h + pad * 2,
+			'rgba(255,255,255,0.2)',
+		);
+		r.advancedText(
+			this.tableId.toString(),
+			this.x + this.w / 2,
+			this.y + this.y / 2,
+			config.theme.colors.black,
+			{ textAlign: 'center', textBaseline: 'middle' },
+		);
+	}
 }
 
 class Target extends Entity {
-    public isFilled: boolean = false;
+	public isFilled: boolean = false;
 
-    constructor(public id:number, x:number, y:number, w:number, h:number) {
-        super(x, y, w, h);
-    }
-    checkSnap(table:Table):boolean {
-        if(table.id !== this.id || this.isFilled){return false}
+	constructor(
+		public id: number,
+		x: number,
+		y: number,
+		w: number,
+		h: number,
+	) {
+		super(x, y, w, h);
+	}
+	checkSnap(table: Table): boolean {
+		if (table.id !== this.id || this.isFilled) {
+			return false;
+		}
 
-        if(table.collidesWith(this)){
-            table.x = this.x;
-            table.y = this.y;
-            this.isFilled = true;
-            table.status = "locked";
-            return true;
-        }
-        return false;
-    }
-    render(r: Renderer) {
-        const color = this.isFilled? config.theme.colors.green : "rgba(255,255,255,0.2)";
-        const pad = this.isFilled? 2 : 0
+		if (table.collidesWith(this)) {
+			table.x = this.x;
+			table.y = this.y;
+			this.isFilled = true;
+			table.status = 'locked';
+			return true;
+		}
+		return false;
+	}
+	render(r: Renderer) {
+		const color = this.isFilled ? config.theme.colors.green : 'rgba(255,255,255,0.2)';
+		const pad = this.isFilled ? 2 : 0;
 
-        r.drawRect(this.x - pad,this.y - pad,this.w + pad * 2,this.h + pad * 2,color)
+		r.drawRect(this.x - pad, this.y - pad, this.w + pad * 2, this.h + pad * 2, color);
 
-        if (!this.isFilled) r.advancedText(this.id.toString(),this.x, this.y, config.theme.colors.white,
-            {textAlign : "center", textBaseline : "middle"})
-    }
+		if (!this.isFilled) {
+			r.advancedText(this.id.toString(), this.x, this.y, config.theme.colors.white, {
+				textAlign: 'center',
+				textBaseline: 'middle',
+			});
+		}
+	}
 }
-type GameState = "start" | "running" | "end"
+type GameState = 'start' | 'running' | 'end';
 
 class GameScene extends Scene {
     private state:GameState = "running";
@@ -246,20 +279,20 @@ const tableAsset = new ImageAsset(table);
 const tableDanceAsset = new SoundAsset(table_dance);
 
 export class TestTheTables extends Game {
-    constructor() {
-        super();
-        this.scene = new MenuScene(() => {
-            this.scene = new GameScene(this.input);
-        });
-    }
-    reset(){
-        this.scene = new GameScene(this.input);
-    }
+	constructor() {
+		super();
+		this.scene = new MenuScene(() => {
+			this.scene = new GameScene(this.input);
+		});
+	}
+	reset() {
+		this.scene = new GameScene(this.input);
+	}
 
-    loadAssets(loader: AssetLoader) {
-        super.loadAssets(loader);
+	loadAssets(loader: AssetLoader) {
+		super.loadAssets(loader);
 
-        loader.add(tableAsset);
-        loader.add(tableDanceAsset);
-    }
+		loader.add(tableAsset);
+		loader.add(tableDanceAsset);
+	}
 }
