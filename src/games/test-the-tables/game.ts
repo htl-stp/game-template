@@ -197,7 +197,7 @@ class GameScene extends Scene {
                 this.activeTableIndex = -1;
                 this.score.update(v => v + 100)
                 if (this.tables.every(table => table.status === "locked")){
-                    this.levelTime *= 0.9
+                    this.levelTime = Math.max(3,this.levelTime * 0.9)
                     this.startNewRound()
                 }
             }
