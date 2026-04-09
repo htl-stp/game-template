@@ -9,8 +9,9 @@ import {signal} from "../../engine/utils/signal.ts";
 import {ScoreDisplay} from "../../engine/entity/scoreDisplay.ts";
 import {HeartDisplay} from "../../engine/entity/heartDisplay.ts";
 import type {AssetLoader} from "../../engine/assets/assetloader.ts";
-import {type Asset, ImageAsset} from "../../engine/assets/asset.ts";
+import {type Asset, ImageAsset, SoundAsset} from "../../engine/assets/asset.ts";
 import table from "../../../public/assets/images/table.png";
+import table_dance from "../../../public/assets/sounds/songs/table_dance.wav";
 
 type TableStatus = "home" | "moving" | "locked";
 
@@ -104,6 +105,7 @@ class GameScene extends Scene {
 
     constructor(private input:Input) {
         super();
+        tableDanceAsset.play()
 
         for (let i = 1; i <= 5; i++) {
             const slot = new HomeSlot(i,i-1)
@@ -240,6 +242,7 @@ class GameScene extends Scene {
 }
 
 const tableAsset = new ImageAsset(table);
+const tableDanceAsset = new SoundAsset(table_dance);
 
 export class TestTheTables extends Game {
     constructor() {
@@ -256,5 +259,6 @@ export class TestTheTables extends Game {
         super.loadAssets(loader);
 
         loader.add(tableAsset);
+        loader.add(tableDanceAsset);
     }
 }
