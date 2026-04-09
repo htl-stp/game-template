@@ -17,4 +17,4 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: 'Lint'
-        run: npm run lint0
+        run: npm run lint
