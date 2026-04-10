@@ -54,7 +54,6 @@ class Student extends Entity {
 		this.gx += dx;
 		this.gy += dy;
 
-		// 🔒 Hard clamp (niemals außerhalb möglich)
 		this.gx = Math.max(0, Math.min(COLS - 1, this.gx));
 		this.gy = Math.max(0, Math.min(ROWS - 1, this.gy));
 	}
@@ -127,6 +126,7 @@ class GameScene extends Scene {
 			(t) => t.gx === this.student.gx && t.gy === this.student.gy,
 		);
 		if (currentTile && currentTile.status === TileStatus.COMPLETE) {
+			this.student.update();
 			this.state = 'end';
 		}
 	}
@@ -184,7 +184,9 @@ class GameScene extends Scene {
 
 			this.score.update((v) => v + 100);
 			setTimeout(() => {
-				affected.forEach((t) => (t.status = TileStatus.CLEAN));
+				if (this.state === 'running') {
+					affected.forEach((t) => (t.status = TileStatus.CLEAN));
+				}
 				this.isAttacking = false;
 			}, dangerTime);
 		}, warningTime);
