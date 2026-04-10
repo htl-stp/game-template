@@ -3,8 +3,8 @@ import GameLayout from '../../layouts/GameLayout.astro';
 import games from '../../assets/games.json';
 
 export function getStaticPaths() {
-    return games.map(({name,internal}) => ({
-        params: { slug: internal },
+    return games.map(({name,slug}) => ({
+        params: { slug },
         props: { title: name }
     }))
 }
