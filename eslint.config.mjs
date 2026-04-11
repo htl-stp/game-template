@@ -48,5 +48,40 @@ export default defineConfig([
 			indent: ['error', 'tab', { SwitchCase: 1 }],
 		},
 	},
+	{
+		files: ['src/games/**/*.{js,ts}'],
+		rules: {
+			'no-restricted-syntax': [
+				'error',
+				{
+					selector: "CallExpression[callee.property.name='addEventListener']",
+					message:
+						'Do not use addEventListener in your game! Use provided methods in @engine instead.',
+				},
+				{
+					selector: 'Literal[value=/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/]',
+					message: 'Hex colors are not allowed. Only use colors from @engine/config.ts',
+				},
+
+				{
+					selector: "Identifier[name='document']",
+					message: 'Do not use document in your game. (identifier)',
+				},
+				{
+					selector: "Identifier[name='document']",
+					message: 'Do not use window in your game. (identifier)',
+				},
+
+				{
+					selector: "MemberExpression[object.name='document']",
+					message: 'Do not use document in your game. (access)',
+				},
+				{
+					selector: "MemberExpression[object.name='window']",
+					message: 'Do not use window in your game. (access)',
+				},
+			],
+		},
+	},
 	{ files: ['**/*.css'], plugins: { css }, language: 'css/css', extends: ['css/recommended'] },
 ]);
