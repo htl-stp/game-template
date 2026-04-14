@@ -68,7 +68,7 @@ export default defineConfig([
 					message: 'Do not use document in your game. (identifier)',
 				},
 				{
-					selector: "Identifier[name='document']",
+					selector: "Identifier[name='window']",
 					message: 'Do not use window in your game. (identifier)',
 				},
 
