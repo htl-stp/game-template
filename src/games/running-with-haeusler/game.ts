@@ -7,6 +7,9 @@ import { ScoreDisplay } from '../../engine/entity/scoreDisplay.ts';
 import type { Input } from '../../engine/core/input.ts';
 import { Game } from '../../engine/core/game.ts';
 import { MenuScene } from '../../engine/scenes/menuScene.ts';
+import type { AssetLoader } from '@engine/assets/assetloader.ts';
+import marathon from '@assets/sounds/songs/marathon.wav';
+import { SoundAsset } from '@engine/assets/asset.ts';
 
 class Haeusler extends Entity {
 	private nextPosY: number;
@@ -92,6 +95,7 @@ class GameScene extends Scene {
 
 	constructor(input: Input) {
 		super();
+		marathonAsset.play();
 
 		this.haeusler = new Haeusler();
 
@@ -120,6 +124,7 @@ class GameScene extends Scene {
 		}
 		if (this.student.x + this.student.w <= 0) {
 			this.state = 'end';
+			marathonAsset.stop();
 		}
 		this.difficulty += 0.02 * dt;
 		this.haeusler.difficulty = this.difficulty;
@@ -172,6 +177,8 @@ class GameScene extends Scene {
 	}
 }
 
+const marathonAsset = new SoundAsset(marathon);
+
 export class RunningWithHaeusler extends Game {
 	constructor() {
 		super();
@@ -182,5 +189,11 @@ export class RunningWithHaeusler extends Game {
 
 	reset() {
 		this.scene = new GameScene(this.input);
+	}
+
+	loadAssets(loader: AssetLoader) {
+		super.loadAssets(loader);
+
+		loader.add(marathonAsset);
 	}
 }
